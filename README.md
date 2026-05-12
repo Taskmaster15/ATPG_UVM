@@ -2,57 +2,29 @@
 
 This repository contains a small UVM-based ATPG (Automatic Test Pattern Generation) example for a 4-bit adder/subtractor with simple stuck-at fault injection. Below is a concise purpose summary for each .sv file and an example xrun command to run the full flow (UVM + DUT).
 
-#!/usr/bin/env python3
-# Minimal UVM runner: run xrun (GUI) with a small random seed and then run IMC to load the coverage.
-# Edit SOURCE_FILES or TOP if your filenames/top-module differ.
+# ATPG execution — high-level flow (using atpg.py)
 
-import os, random, subprocess, sys
+High-level flow: cleanup → run xrun (GUI, blocks until closed) → run IMC to load coverage.
 
-# --- user-editable ---
-SOURCE_FILES = ["testbench.sv"]   # testbench.sv includes the other .sv files
-TOP = "tb_top"
+1) Run Command
 
-# --- runtime values ---
-seed = random.randint(0, 100)
-cov_test = f"test_sv{seed}"
-cov_scope = f"cov_work/scope/{cov_test}"
+```sh
+chmod +x atpg.py      # optional
+./atpg.py
+# or
+python3 atpg.py
+```
 
-# cleanup previous artifacts
-os.system("rm -rf xcelium.d cov_work xrun.log xrun.history waves.shm dump.vcd")
+2) Commands the script executes (with placeholders)
 
-# build and run xrun (blocks until you close SimVision)
-xrun_cmd = [
-    "xrun",
-    "-uvm",
-    "-64bit",
-    "-svseed", str(seed),
-    "-access", "+rwc",
-    "-top", TOP,
-    "-l", "xrun.log",
-    "-coverage", "all",
-    "-covoverwrite",
-    "-covtest", cov_test,
-] + SOURCE_FILES + [
-    "-gui",
-]
+```sh
+rm -rf xcelium.d cov_work xrun.log xrun.history waves.shm dump.vcd
 
-print("Invoking xrun:")
-print(" ".join(xrun_cmd))
-rc = subprocess.run(xrun_cmd).returncode
-if rc != 0:
-    print(f"xrun failed (rc={rc})")
-    sys.exit(rc)
+xrun -uvm -64bit -svseed <seed> -access +rwc -top <TOP> -l xrun.log -coverage all -covoverwrite -covtest test_sv<seed> <SOURCE_FILES> -gui
 
-# run IMC to load the produced coverage scope (blocks until IMC finishes)
-imc_cmd = ["imc", "-load", cov_scope]
-print("Invoking IMC:")
-print(" ".join(imc_cmd))
-rc2 = subprocess.run(imc_cmd).returncode
-if rc2 != 0:
-    print(f"IMC failed (rc={rc2})")
-    sys.exit(rc2)
+imc -load cov_work/scope/test_sv<seed>
+```
 
-print("Done.")
 
 ## File-by-file purpose
 
