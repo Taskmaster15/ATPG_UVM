@@ -1,53 +1,48 @@
 #!/usr/bin/env python3
-# Minimal runner: build and run an xrun command, then run IMC to load the coverage.
+# Minimal UVM runner: run xrun (GUI) with a small random seed and then run IMC to load the coverage.
 # Edit SOURCE_FILES or TOP if your filenames/top-module differ.
 
-import os
-import random
-import subprocess
-import sys
+import os, random, subprocess, sys
 
-# --- User-editable settings ---
-SOURCE_FILES = ["testbench.sv"]   # change to ["tb.sv"] if you prefer the Perl names
-TOP = "tb_top"                    # change to "tb" if you prefer the Perl names
+# --- user-editable ---
+SOURCE_FILES = ["testbench.sv"]   # testbench.sv includes the other .sv files
+TOP = "tb_top"
 
-# --- Derived / runtime values ---
-seed = random.randint(0, 49)
-cov_test_name = f"test_sv{seed}"
-cov_scope = f"cov_work/scope/{cov_test_name}"
+# --- runtime values ---
+seed = random.randint(0, 100)
+cov_test = f"test_sv{seed}"
+cov_scope = f"cov_work/scope/{cov_test}"
 
-# --- Cleanup (same as the Perl script) ---
+# cleanup previous artifacts
 os.system("rm -rf xcelium.d cov_work xrun.log xrun.history waves.shm dump.vcd")
 
-# --- Build xrun command (printed for convenience) ---
+# build and run xrun (blocks until you close SimVision)
 xrun_cmd = [
     "xrun",
     "-uvm",
+    "-64bit",
     "-svseed", str(seed),
-] + SOURCE_FILES + [
-    "-top", TOP,
     "-access", "+rwc",
+    "-top", TOP,
+    "-l", "xrun.log",
     "-coverage", "all",
     "-covoverwrite",
-    "-covtest", cov_test_name,
-   # "-input", f"@probe -create -shm {TOP} -all -depth all -dynamic",
-    "-gui"
+    "-covtest", cov_test,
+] + SOURCE_FILES + [
+    "-gui",
 ]
 
-print("Running xrun:")
+print("Invoking xrun:")
 print(" ".join(xrun_cmd))
-
-# Run xrun (this will block until simulator/GUI closes)
 rc = subprocess.run(xrun_cmd).returncode
 if rc != 0:
-    print(f"xrun failed (rc={rc}) - exiting.")
+    print(f"xrun failed (rc={rc})")
     sys.exit(rc)
 
-# --- Run IMC to load the coverage scope (as in your Perl example) ---
+# run IMC to load the produced coverage scope (blocks until IMC finishes)
 imc_cmd = ["imc", "-load", cov_scope]
-print("Running IMC:")
+print("Invoking IMC:")
 print(" ".join(imc_cmd))
-
 rc2 = subprocess.run(imc_cmd).returncode
 if rc2 != 0:
     print(f"IMC failed (rc={rc2})")
