@@ -2,7 +2,7 @@
 
 High-level flow: cleanup → run xrun (GUI, blocks until closed) → run IMC to load coverage.
 
-1) Run the runner
+1) Run Command
 
 ```sh
 chmod +x atpg.py      # optional
