@@ -3,7 +3,7 @@ class atpg_seq extends uvm_sequence #(atpg_item);
   `uvm_object_utils(atpg_seq)
 
   atpg_item::algo_e algo;
-  int count = 50;
+  int count;
 
   function new(string name = "atpg_seq");
     super.new(name);
