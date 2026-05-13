@@ -29,7 +29,7 @@ class atpg_mon extends uvm_monitor;
       seq.ext = bif.ext;
       seq.fault_en   = bif.fault_en;
       seq.fault_type = bif.fault_type;
-      seq.algo_sel   = atpg_item::algo_e'(bif.algo_sel);
+      seq.algo_sel   = bif.algo_sel;
       
       `uvm_info("MON", $sformatf("@%0t a=%b b=%b k=%0b fault_en=%0b fault_type=%0b out=%b ext=%b", $time, seq.a, seq.b, seq.k, seq.fault_en, seq.fault_type, seq.out, seq.ext), UVM_LOW)
       
