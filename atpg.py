@@ -5,29 +5,30 @@
 import os, random, subprocess, sys
 
 # --- user-editable ---
-SOURCE_FILES = ["testbench.sv"]   # testbench.sv includes the other .sv files
+SOURCE_FILES = ["atpg_pkg.sv","testbench.sv"]   # testbench.sv includes the other .sv files
 TOP = "tb_top"
 
 # --- runtime values ---
-seed = random.randint(0, 100)
-cov_test = f"test_sv{seed}"
-cov_scope = f"cov_work/scope/{cov_test}"
+#seed = random.randint(0, 49)
+#cov_test = f"test_sv{seed}"
+#cov_scope = f"cov_work/scope/{cov_test}"
+cov_scope = f"cov_work/scope/test/"
 
 # cleanup previous artifacts
-os.system("rm -rf xcelium.d cov_work xrun.log xrun.history waves.shm dump.vcd")
+os.system("rm -rf xcelium.d cov_work xrun.key xrun.log xrun.history imc.log mdv.log waves.shm dump.vcd")
 
 # build and run xrun (blocks until you close SimVision)
 xrun_cmd = [
     "xrun",
     "-uvm",
     "-64bit",
-    "-svseed", str(seed),
+    #"-svseed", str(seed),
     "-access", "+rwc",
     "-top", TOP,
     "-l", "xrun.log",
     "-coverage", "all",
     "-covoverwrite",
-    "-covtest", cov_test,
+    #"-covtest", cov_test,
 ] + SOURCE_FILES + [
     "-gui",
 ]
