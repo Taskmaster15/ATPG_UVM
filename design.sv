@@ -1,8 +1,9 @@
+import atpg_pkg::*;
 interface bas_if(input bit clk);
   logic [3:0] a,b;
   logic k;
   
-  logic [1:0]  algo_sel;
+  algo_e      algo_sel;
   logic fault_en;
   logic fault_type; // 0 = SA0, 1 = SA1
   

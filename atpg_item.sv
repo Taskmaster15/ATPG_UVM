@@ -1,13 +1,8 @@
+import atpg_pkg::*;
 class atpg_item extends uvm_sequence_item;
 
   `uvm_object_utils(atpg_item)
 
-  typedef enum bit [1:0] {
-    PRNG,
-    FDG,
-    WPG
-  } algo_e;
-  
   algo_e algo_sel;
 
   // Inputs
